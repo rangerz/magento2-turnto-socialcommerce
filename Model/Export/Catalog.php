@@ -532,7 +532,7 @@ class Catalog extends AbstractExport
      * @return \Magento\Catalog\Model\ResourceModel\Product\Collection
      */
 
-    public function getProducts(\Magento\Store\Api\Data\StoreInterface $store, $page = null, $pageCount = 10000)
+    public function getProducts(\Magento\Store\Api\Data\StoreInterface $store, $page = null, $pageCount = 1000)
     {
         $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/catalog-feed-export.log');
         $logger = new \Zend\Log\Logger();
