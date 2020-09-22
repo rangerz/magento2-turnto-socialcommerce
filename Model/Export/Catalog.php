@@ -220,7 +220,7 @@ class Catalog extends AbstractExport
 
             $logger->info("Page: ".$page);
 
-            if ($products = $this->getProducts($store,$page,10000)){
+            if ($products = $this->getProducts($store,$page,1000)){
                 $logger->info("-- Found Products");
 
                 $childProducts = [];
