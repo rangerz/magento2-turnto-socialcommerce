@@ -214,7 +214,14 @@ class Catalog extends AbstractExport
                 $this->sanitizeData($store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB))
             );
 
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/catalog-feed-export.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
+
+            $logger->info("Page: ".$page);
+
             if ($products = $this->getProducts($store,$page,10000)){
+                $logger->info("-- Found Products");
 
                 $childProducts = [];
 
@@ -494,7 +501,6 @@ class Catalog extends AbstractExport
                while($feed=$this->generateProductFeed($store,$page)){
                    $this->transmitFeed($feed, $store,$page);
                    $page++;
-
                }
             }
         }
@@ -528,7 +534,11 @@ class Catalog extends AbstractExport
 
     public function getProducts(\Magento\Store\Api\Data\StoreInterface $store, $page = null, $pageCount = 10000)
     {
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/catalog-feed-export.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
 
+        $logger->info("getProducts() Page ".$page);
 
         $collection = $this->productCollectionFactory->create()
             ->addAttributeToSelect('id')
