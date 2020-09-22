@@ -220,7 +220,7 @@ class Catalog extends AbstractExport
 
             $logger->info("Page: ".$page);
 
-            if ($products = $this->getProducts($store,$page,1000)){
+            if ($products = $this->getProducts($store,$page,500)){
                 $logger->info("-- Found Products");
 
                 $childProducts = [];
@@ -532,7 +532,7 @@ class Catalog extends AbstractExport
      * @return \Magento\Catalog\Model\ResourceModel\Product\Collection
      */
 
-    public function getProducts(\Magento\Store\Api\Data\StoreInterface $store, $page = null, $pageCount = 1000)
+    public function getProducts(\Magento\Store\Api\Data\StoreInterface $store, $page = null, $pageCount = 500)
     {
         $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/catalog-feed-export.log');
         $logger = new \Zend\Log\Logger();
