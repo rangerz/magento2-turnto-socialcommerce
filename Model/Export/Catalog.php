@@ -39,6 +39,11 @@ class Catalog extends AbstractExport
     const TURNTO_SUCCESS_RESPONSE = 'SUCCESS';
 
     /**
+     * Override to include child products in the catalog without "Use Child SKU instead of Parent SKU"
+     */
+    const CHILD_SKU_OVERRIDE = true;
+
+    /**
      * @var \Magento\Catalog\Helper\Image $imageHelper
      */
     protected $imageHelper = null;
@@ -224,7 +229,7 @@ class Catalog extends AbstractExport
                 // development time, this simpler approach is being taken and if it proves to not scale well, can be
                 // refactored in the future to use a query that loads all child products for all configurable products
                 // at one time.
-                if ($this->config->getUseChildSku($store->getId())) {
+                if ($this->config->getUseChildSku($store->getId()) || self::CHILD_SKU_OVERRIDE) {
                     foreach ($products as $product) {
                         if ($product->getTypeId() !== Configurable::TYPE_CODE) {
                             continue;
@@ -239,7 +244,7 @@ class Catalog extends AbstractExport
 
                 foreach ($products as $product) {
                     $parent = false;
-                    if ($this->config->getUseChildSku($store->getId()) && isset($childProducts[$product->getSku()])) {
+                    if (($this->config->getUseChildSku($store->getId()) || self::CHILD_SKU_OVERRIDE) && isset($childProducts[$product->getSku()])) {
                         $parent = $childProducts[$product->getSku()];
                     }
                     try {
@@ -560,7 +565,7 @@ class Catalog extends AbstractExport
             }
         }
 
-        if (!$this->config->getUseChildSku($store->getId())) {
+        if (!($this->config->getUseChildSku($store->getId()) || self::CHILD_SKU_OVERRIDE)) {
             $collection->addFieldToFilter(
                 'visibility',
                 [
