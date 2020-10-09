@@ -52,6 +52,12 @@ class LoggedInData  extends \Magento\Framework\App\Action\Action
     {
         $customer = $this->customerSession->getCustomer();
 
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/templog.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+
+        $logger->info("TEST");
+        
         if ($customer->getId()) {
             $customerData = [
                 'payload' => [
@@ -61,6 +67,9 @@ class LoggedInData  extends \Magento\Framework\App\Action\Action
                     'exp' => time() + 86400
                 ]
             ];
+
+            $logger->info("Payload: ");
+            $logger->info(\GuzzleHttp\json_encode($customerData['payload']));
         } else {
             $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
             $resultJson->setData(['jwt'=>null]);
