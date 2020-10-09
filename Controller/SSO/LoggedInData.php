@@ -68,6 +68,13 @@ class LoggedInData  extends \Magento\Framework\App\Action\Action
 
         }
 
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/templog.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+
+        $logger->info("Payload: ");
+        $logger->info(\GuzzleHttp\json_encode($customerData['payload']));
+
         $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
         $resultJson->setData(['jwt' => $this->getUserJWTToken($customerData['payload'])]);
 
