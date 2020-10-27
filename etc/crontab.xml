@@ -27,7 +27,7 @@
         </job>
         <!-- TurnTo generates the SKU feed at 3AM EST and 11AM EST every day. The import runs every hour and only updates product attributes that have changed. -->
         <job name="socialcommerce_importratings" instance="TurnTo\SocialCommerce\Model\Import\Ratings" method="cronDownloadFeed">
-            <schedule>0 * * * *</schedule>
+            <schedule>45 16 * * *</schedule>
         </job>
     </group>
 </config>
