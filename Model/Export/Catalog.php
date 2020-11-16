@@ -13,6 +13,7 @@
 
 namespace TurnTo\SocialCommerce\Model\Export;
 
+use _HumbugBox1d62d963ee7e\Nette\Neon\Exception;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use TurnTo\SocialCommerce\Helper\Config;
 use TurnTo\SocialCommerce\Helper\Product;
@@ -192,6 +193,10 @@ class Catalog extends AbstractExport
         $progressCounter = 0;
         $products = [];
 
+        if ($page == 2) {
+            throw new \Exception("test");
+        }
+
         try {
 
 
@@ -214,7 +219,7 @@ class Catalog extends AbstractExport
                 $this->sanitizeData($store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB))
             );
 
-            if ($products = $this->getProducts($store,$page,10000)){
+            if ($products = $this->getProducts($store,$page,500)){
 
                 $childProducts = [];
 
