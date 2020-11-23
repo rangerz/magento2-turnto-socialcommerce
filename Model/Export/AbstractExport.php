@@ -214,6 +214,7 @@ class AbstractExport
      * @param $relativeUrl
      * @param $storeId
      * @return string
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     protected function getAbsoluteUrl($relativeUrl, $storeId)
     {

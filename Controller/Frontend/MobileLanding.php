@@ -42,6 +42,8 @@ class MobileLanding extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
+        // TODO - Figure out what this page is for. Intended for email landing page for mobile?
+
         $resultPage = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_PAGE);
         $resultPage->getConfig()->getTitle()->set($this->config->getMobilePageTitle());
 

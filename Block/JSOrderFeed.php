@@ -71,9 +71,6 @@ class JSOrderFeed extends \Magento\Framework\View\Element\Template
         $firstName = $order->getCustomerFirstname();
         $lastName = $order->getCustomerLastname();
 
-        // Determine which store the order was made from
-        $storeId = $order->getStoreId();
-
         if (null === $order->getCustomer()) {
             $address = $order->getShippingAddress();
 
@@ -85,27 +82,7 @@ class JSOrderFeed extends \Magento\Framework\View\Element\Template
             $lastName = $address->getLastname();
         }
 
-        $orderItems = [];
-
-        /** @var \Magento\Sales\Model\Order\Item $item */
-        foreach ($order->getAllVisibleItems() as $item) {
-            $product = $item->getProduct();
-            $product->setStoreId($storeId);
-
-            if ($product === null) {
-                continue;
-            }
-
-            $sku = $this->config->getUseChildSku() ? $item->getSku() : $product->getSku();
-
-            $orderItems[] = [
-                'title' => $product->getName(),
-                'url' => $product->getProductUrl(),
-                'sku' => $this->productHelper->turnToSafeEncoding($sku),
-                'getPrice' => $product->getFinalPrice(),
-                'itemImageUrl' => $this->imageHelper->init($product, 'product_small_image')->getUrl()
-            ];
-        }
+        $orderItems = $this->getOrderItemData($order);
 
         return json_encode(
             [
@@ -120,11 +97,11 @@ class JSOrderFeed extends \Magento\Framework\View\Element\Template
     }
 
     /**
+     * @param $order
      * @return array
      */
-    public function getOrderItemData()
+    public function getOrderItemData($order)
     {
-        $order = $this->checkoutSession->getLastRealOrder();
         $orderItems = [];
 
         /** @var \Magento\Sales\Model\Order\Item $item */

@@ -71,22 +71,28 @@ class RedirectToLogin extends \Magento\Framework\App\Action\Action
         switch ($action) {
             case "QUESTION_CREATE":
                 if($this->getRequest()->getParam('authSetting') == 'ANONYMOUS'){
-                    return $this->config->getQuestionMsgAnon();
+                    $message = $this->config->getQuestionMsgAnon();
                 }
-                return $this->config->getQuestionMsg();
+                $message = $this->config->getQuestionMsg();
+                break;
             case "ANSWER_CREATE":
-                return $this->config->getAnswerMessage();
+                $message = $this->config->getAnswerMessage();
+                break;
             case "REVIEW_CREATE":
                 if ($this->getRequest()->getParam('authSetting') == 'PURCHASE_REQUIRED') {
-                    return $this->config->getReviewMsgPurchaseReq();
+                    $message = $this->config->getReviewMsgPurchaseReq();
+                    break;
                 }
-                return $this->config->getReviewMsg();
+                $message = $this->config->getReviewMsg();
+                break;
             case "REPLY_CREATE":
-                return $this->config->getReplyMsg();
+                $message = $this->config->getReplyMsg();
+                break;
             default:
-                return "";
+                $message = "";
         }
 
+        return $message;
     }
 
 }

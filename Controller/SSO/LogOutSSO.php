@@ -78,6 +78,7 @@ class LogOutSSO extends \Magento\Customer\Controller\Account\Logout
      */
     public function execute()
     {
+        // TODO - replace depricated functions here
         $lastCustomerId = $this->session->getId();
         $this->session->logout()->setBeforeAuthUrl($this->_redirect->getRefererUrl())
             ->setLastCustomerId($lastCustomerId);
