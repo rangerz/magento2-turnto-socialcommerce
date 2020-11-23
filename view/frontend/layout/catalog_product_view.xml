@@ -31,7 +31,7 @@
         </referenceContainer>
 
         <referenceContainer name="product.info.price">
-            <block name="turnto_review_teaser" template="TurnTo_SocialCommerce::product/view/teaser.phtml" after="product.info.review"/>
+            <block class="Magento\Catalog\Block\Product\View" name="turnto_review_teaser" template="TurnTo_SocialCommerce::product/view/teaser.phtml" after="product.info.stock.sku"/>
         </referenceContainer>
 
         <!-- QA Tab Content -->
