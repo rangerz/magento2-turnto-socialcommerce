@@ -30,12 +30,9 @@
             </block>
         </referenceContainer>
 
-        <!-- Review Teaser Content -->
-        <referenceBlock name="product.info.review">
-            <action method="setTemplate">
-                <argument name="template" xsi:type="string">TurnTo_SocialCommerce::product/view/default-teaser.phtml</argument>
-            </action>
-        </referenceBlock>
+        <referenceContainer name="product.info.price">
+            <block class="Magento\Framework\View\Element\Template" name="turnto_review_teaser" template="urnTo_SocialCommerce::product/view/default-teaser.phtml" after="product.info.review"/>
+        </referenceContainer>
 
         <!-- QA Tab Content -->
         <referenceBlock name="product.info.details">
