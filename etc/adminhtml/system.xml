@@ -181,7 +181,7 @@
                     </depends>
                 </field>
                 <field id="enable_comments_pinboard_teaser" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInStore="1" showInWebsite="1">
-                    <label>Enable Top Comments</label>
+                    <label>Enable Comments Pinboard Teaser</label>
                     <comment><![CDATA[
                         Enable comments pinboard teaser block on the product details page
                     ]]></comment>
