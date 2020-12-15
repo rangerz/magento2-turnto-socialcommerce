@@ -440,6 +440,11 @@ class Catalog extends AbstractExport
         $deepestLength = 0;
         $deepestTree = [];
 
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/turnto-temp.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+        $logger->info('Starting Category Tree for '. $product->getName() . "( ". $product->getSku() . ")");
+
         foreach ($categories as $category) {
             $tempTree = $this->getCategoryBranch($category);
             $treeLength = count($tempTree);
@@ -478,9 +483,14 @@ class Catalog extends AbstractExport
             $parent = null;
         } finally {
             $categoryBranch[] = $category;
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/turnto-temp.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
             if (isset($parent)) {
+                $logger->info('Category Branch - ' . $category->getName() . " -> " . $parent->getName());
                 return $this->getCategoryBranch($parent, $categoryBranch);
             } else {
+                $logger->info('Category Branch - ' . $category->getName() . " -> [NONE]");
                 return $categoryBranch;
             }
         }
