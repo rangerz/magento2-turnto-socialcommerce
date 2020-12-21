@@ -449,7 +449,7 @@ class Catalog extends AbstractExport
         $categoryCollection = $this->categoryCollectionFactory->create();
         $categoryCollection->getSelect()->joinLeft(
             ['ccp' => $categoryCollection->getProductTable()],
-            "main_table.entity_id = ccp.category_id",
+            "e.entity_id = ccp.category_id",
             [
                 'ccp.product_id'
             ]
