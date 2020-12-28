@@ -13,9 +13,12 @@
 
 namespace TurnTo\SocialCommerce\Model\Export;
 
+use Magento\Catalog\Model\ResourceModel\Category\Collection as CategoryCollection;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use TurnTo\SocialCommerce\Helper\Config;
 use TurnTo\SocialCommerce\Helper\Product;
+use Magento\Catalog\Api\CategoryRepositoryInterface;
 
 /**
  * Class Catalog
@@ -60,20 +63,37 @@ class Catalog extends AbstractExport
     protected $totalPages;
 
     /**
+     * @var CategoryCollectionFactory
+     */
+    protected $categoryCollectionFactory;
+
+    protected $connection;
+
+    /**
+     * @var \Magento\Framework\App\Resource
+     */
+    protected $resource;
+
+    /**
+     * @var CategoryRepositoryInterface
+     */
+    protected $categoryRepository;
+
+    /**
      * Catalog constructor.
-     *
-     * @param Config                                                             $config
-     * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory     $productCollectionFactory
-     * @param \TurnTo\SocialCommerce\Logger\Monolog                              $logger
-     * @param \Magento\Framework\Intl\DateTimeFactory                            $dateTimeFactory
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder                       $searchCriteriaBuilder
-     * @param \Magento\Framework\Api\FilterBuilder                               $filterBuilder
-     * @param \Magento\Framework\Api\SortOrderBuilder                            $sortOrderBuilder
-     * @param \Magento\UrlRewrite\Model\UrlFinderInterface                       $urlFinder
-     * @param \Magento\Store\Model\StoreManagerInterface                         $storeManager
-     * @param \Magento\Catalog\Helper\Image                                      $imageHelper
+     * @param Config $config
+     * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
+     * @param \TurnTo\SocialCommerce\Logger\Monolog $logger
+     * @param \Magento\Framework\Intl\DateTimeFactory $dateTimeFactory
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param \Magento\Framework\Api\FilterBuilder $filterBuilder
+     * @param \Magento\Framework\Api\SortOrderBuilder $sortOrderBuilder
+     * @param \Magento\UrlRewrite\Model\UrlFinderInterface $urlFinder
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param \Magento\Catalog\Helper\Image $imageHelper
      * @param \Magento\CatalogInventory\Model\Spi\StockRegistryProviderInterface $stockRegistryProvider
-     * @param Product                                                            $productHelper
+     * @param Product $productHelper
+     * @param CategoryCollectionFactory $categoryCollectionFactory
      */
     public function __construct(
         \TurnTo\SocialCommerce\Helper\Config $config,
@@ -87,7 +107,10 @@ class Catalog extends AbstractExport
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Catalog\Helper\Image $imageHelper,
         \Magento\CatalogInventory\Model\Spi\StockRegistryProviderInterface $stockRegistryProvider,
-        Product $productHelper
+        Product $productHelper,
+        CategoryCollectionFactory $categoryCollectionFactory,
+        \Magento\Framework\App\Resource $resource,
+        CategoryRepositoryInterface $categoryRepository
     )
     {
         parent::__construct(
@@ -106,6 +129,10 @@ class Catalog extends AbstractExport
         $this->storeManager = $storeManager;
         $this->stockRegistryProvider = $stockRegistryProvider;
         $this->productHelper = $productHelper;
+        $this->categoryCollectionFactory = $categoryCollectionFactory;
+        $this->resource = $resource;
+        $this->connection = $this->resource->getConnection(\Magento\Framework\App\ResourceConnection::DEFAULT_CONNECTION);
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -435,10 +462,27 @@ class Catalog extends AbstractExport
      */
     protected function getCategoryTreeString(\Magento\Catalog\Model\Product $product)
     {
+        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/turnto-temp.log');
+        $logger = new \Zend\Log\Logger();
+        $logger->addWriter($writer);
+
+
+        $productId = $product->getId();
+        $tableName = $this->connection->getTableName('catalog_category_product');
+        $categoryResult = $this->connection->fetchAll("SELECT category_id FROM. ".$tableName. "WHERE product_id = ".$productId);
+
+        $logger->info('Category Result: '.json_encode($categoryResult));
+
+        /** @var CategoryCollection $categoryCollection */
+        $categoryCollection = $this->categoryCollectionFactory->create();
+        $categoryCollection->addAttributeToFilter("entity_id", ['in' => $categoryResult]);
+        $categories = $categoryCollection->getItems();
+
         $categoryName = '';
-        $categories = $product->getCategoryCollection();
         $deepestLength = 0;
         $deepestTree = [];
+
+        $logger->info('Starting Category Tree for '. $product->getName() . "( ". $product->getSku() . ")");
 
         foreach ($categories as $category) {
             $tempTree = $this->getCategoryBranch($category);
@@ -478,9 +522,14 @@ class Catalog extends AbstractExport
             $parent = null;
         } finally {
             $categoryBranch[] = $category;
+            $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/turnto-temp.log');
+            $logger = new \Zend\Log\Logger();
+            $logger->addWriter($writer);
             if (isset($parent)) {
+                $logger->info('Category Branch - ' . $category->getName() . " -> " . $parent->getName());
                 return $this->getCategoryBranch($parent, $categoryBranch);
             } else {
+                $logger->info('Category Branch - ' . $category->getName() . " -> [NONE]");
                 return $categoryBranch;
             }
         }
