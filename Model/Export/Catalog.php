@@ -109,7 +109,7 @@ class Catalog extends AbstractExport
         \Magento\CatalogInventory\Model\Spi\StockRegistryProviderInterface $stockRegistryProvider,
         Product $productHelper,
         CategoryCollectionFactory $categoryCollectionFactory,
-        \Magento\Framework\App\Resource $resource,
+        \Magento\Framework\App\ResourceConnection $resource,
         CategoryRepositoryInterface $categoryRepository
     )
     {
