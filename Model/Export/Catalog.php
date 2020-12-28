@@ -469,7 +469,7 @@ class Catalog extends AbstractExport
 
         $productId = $product->getId();
         $tableName = $this->connection->getTableName('catalog_category_product');
-        $categoryResult = $this->connection->fetchAll("SELECT category_id FROM. ".$tableName. "WHERE product_id = ".$productId);
+        $categoryResult = $this->connection->fetchAll("SELECT category_id FROM ".$tableName. " WHERE product_id = ".$productId);
 
         $logger->info('Category Result: '.json_encode($categoryResult));
 
