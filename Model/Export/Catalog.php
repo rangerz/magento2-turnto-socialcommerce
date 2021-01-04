@@ -466,19 +466,8 @@ class Catalog extends AbstractExport
         $logger = new \Zend\Log\Logger();
         $logger->addWriter($writer);
 
-
-        $productId = $product->getId();
-        $tableName = $this->connection->getTableName('catalog_category_product');
-        $categoryResult = $this->connection->fetchAll("SELECT category_id FROM ".$tableName. " WHERE product_id = ".$productId);
-
-        $logger->info('Category Result: '.json_encode($categoryResult));
-
-        /** @var CategoryCollection $categoryCollection */
-        $categoryCollection = $this->categoryCollectionFactory->create();
-        $categoryCollection->addAttributeToFilter("entity_id", ['in' => $categoryResult]);
-        $categories = $categoryCollection->getItems();
-
         $categoryName = '';
+        $categories = $product->getCategoryCollection();
         $deepestLength = 0;
         $deepestTree = [];
 
@@ -494,12 +483,12 @@ class Catalog extends AbstractExport
         }
 
         foreach (array_reverse($deepestTree) as $node) {
-            $nodeName = $node->getName();
+            $nodeName = $this->getCategoryName($node->getId());
             if (!empty($nodeName)) {
                 if (!empty($categoryName)) {
                     $categoryName .= ' > ';
                 }
-                $categoryName .= $node->getName();
+                $categoryName .= $this->getCategoryName($category->getId());
             }
         }
 
@@ -526,13 +515,26 @@ class Catalog extends AbstractExport
             $logger = new \Zend\Log\Logger();
             $logger->addWriter($writer);
             if (isset($parent)) {
-                $logger->info('Category Branch - ' . $category->getName() . " -> " . $parent->getName());
+                $logger->info('Category Branch - ' . $this->getCategoryName($category->getId()). " -> " . $parent->getName());
                 return $this->getCategoryBranch($parent, $categoryBranch);
             } else {
-                $logger->info('Category Branch - ' . $category->getName() . " -> [NONE]");
+                $logger->info('Category Branch - ' . $this->getCategoryName($category->getId()) . " -> [NONE]");
                 return $categoryBranch;
             }
         }
+    }
+
+    protected function getCategoryName($categoryId)
+    {
+        $sql = <<<SQL
+            SELECT value
+            FROM catalog_category_entity_varchar
+            WHERE attribute_id = (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'name' AND entity_type_id = 3)
+            AND entity_id = ?;
+SQL;
+
+        $categoryResult = $this->connection->fetchOne($sql, [$categoryId]);
+        return $categoryResult;
     }
 
     /**
